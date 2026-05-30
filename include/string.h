@@ -4,11 +4,13 @@
 /*
   LIB INVARIANTES
 
-  ptr != NULL
-  len < cap
-  ptr[len] == '\0'
-  allocated_bytes >= cap
- */
+  1. ptr != NULL
+  2. cap >= len + 1a (0 <= len < cap)
+  3. ptr[len] == '\0'
+  4. ptr points to a writable allocation of at least cap bytes
+  5. String uniquely owns that allocation
+
+*/
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -17,10 +19,10 @@
 
 typedef enum {
   SUCCESS = 0,
-  ERR_NULL_PTR, /* maybe distinguish between null pointer, failed allocation et
-                   al */
-  ERR_EMPTY_STRING,
-  ERR_EMPTY_SLICE,
+  ERR_NULL_PTR,
+  ERR_STRING_INIT_FAILED,
+  ERR_NULL_ARGUMENT,
+  ERR_ALLOC_FAILED,
   ERR_GENERAL,
 } ErrorCode;
 
@@ -44,6 +46,15 @@ typedef struct {
   size_t len; // actual bytes
   size_t cap; // overall size of the memory-block
 } String;
+
+/*
+ * HELPER FUNCTIONS
+ *
+ * implement my_strlen using pointer arithmetic
+ * */
+
+ErrorCode my_strlen(void);
+ErrorCode my_memcpy(void);
 
 /*
   string[i] == *(str + 1)
@@ -123,13 +134,15 @@ ErrorCode string_destroy(String *s);
   enables destroy + append reuse
 
 */
-ErrorCode string_append(String *s, char *slice);
+ErrorCode string_append(String *s, const char *slice);
 
 // separation of len vs capacity
 // allocation policy
 ErrorCode string_reserve();
 
 // deep copy vs shallow copy
+// need to create a deep copy of a string with a new
+// ownership and document the problem with char *b = a;
 ErrorCode string_clone();
 
 #endif /* STRING_H */

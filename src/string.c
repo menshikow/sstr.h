@@ -5,6 +5,10 @@
 #include <stdlib.h>
 
 ErrorCode string_init(String *s_out, const char *s_in) {
+  if (s_out == NULL) {
+    return ERR_NULL_PTR;
+  }
+
   if (s_in == NULL) {
     s_out->ptr = NULL;
     s_out->len = 0;
@@ -12,11 +16,6 @@ ErrorCode string_init(String *s_out, const char *s_in) {
 
     return ERR_NULL_PTR;
   }
-
-  if (s_out == NULL) {
-    return ERR_NULL_PTR;
-  }
-
   s_out->ptr = NULL;
   s_out->len = 0;
   s_out->cap = DEFAULT_CAPACITY;
@@ -31,8 +30,7 @@ ErrorCode string_init(String *s_out, const char *s_in) {
 
   s_out->ptr = (char *)malloc(s_out->cap);
   if (s_out->ptr == NULL) {
-
-    return ERR_NULL_PTR;
+    return ERR_ALLOC_FAILED;
   }
 
   for (size_t i = 0; s_in[i] != '\0'; i++) {
@@ -56,20 +54,42 @@ ErrorCode string_destroy(String *s) {
   return SUCCESS;
 }
 
-ErrorCode string_append(String *s, char *slice) {
-  if (slice == NULL) {
-    return ERR_EMPTY_SLICE;
-  }
-
-  if (s == NULL) {
-    return ERR_EMPTY_STRING;
+ErrorCode string_append(String *s, const char *slice) {
+  if (s == NULL || slice == NULL) {
+    return ERR_NULL_ARGUMENT;
   }
 
   if (s->ptr == NULL) {
-    string_init(s, slice);
+    return (string_init(s, slice) == SUCCESS) ? SUCCESS
+                                              : ERR_STRING_INIT_FAILED;
   }
 
-  // TODO: compelete the function
+  size_t slice_len = 0; // size_t slice_len = my_strlen(slice);
+
+  for (size_t i = 0; slice[i] != '\0'; i++) {
+    slice_len++;
+  }
+
+  size_t new_len = s->len + slice_len;
+
+  if (s->cap < new_len + 1) {
+    size_t tmp_cap = new_len * 2;
+    char *tmp_ptr = realloc(s->ptr, tmp_cap);
+
+    if (tmp_ptr == NULL) {
+      return ERR_ALLOC_FAILED;
+    }
+
+    s->ptr = tmp_ptr;
+    s->cap = tmp_cap;
+  }
+
+  for (size_t i = 0; slice[i] != '\0'; i++) {
+    s->ptr[s->len + i] = slice[i];
+  }
+
+  s->len = new_len;
+  s->ptr[s->len] = '\0';
 
   return SUCCESS;
 }
