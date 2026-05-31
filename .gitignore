@@ -49,6 +49,7 @@ sds/
 scan-build-*
 
 blog-learning-summery.md
+contract.md
 *.rpm
 notes/
 thinkabout.txt

@@ -143,18 +143,41 @@ ErrorCode string_clone(String *dest, String const *src) {
   return SUCCESS;
 }
 
-ErrorCode string_reserve(String *s, size_t add_cap) {
+ErrorCode string_reserve(String *s, size_t count) {
   if (s == NULL || s->ptr == NULL) {
     return ERR_NULL_ARGUMENT;
   }
 
-  if (add_cap == 0) {
+  if (count == 0) {
     return SUCCESS;
   }
 
-  size_t new_cap = s->cap + add_cap;
+  size_t new_cap = s->cap + count;
 
   char *tmp_ptr = realloc(s->ptr, new_cap);
+  if (tmp_ptr == NULL) {
+    return ERR_ALLOC_FAILED;
+  }
+
+  s->ptr = tmp_ptr;
+  s->cap = new_cap;
+
+  return SUCCESS;
+}
+
+ErrorCode string_shrink(String *s) {
+  if (s == NULL) {
+    return ERR_NULL_ARGUMENT;
+  }
+
+  if (s->cap == s->len + 1) {
+    return SUCCESS;
+  }
+
+  size_t new_cap = s->len + 1;
+
+  char *tmp_ptr = realloc(s->ptr, new_cap);
+
   if (tmp_ptr == NULL) {
     return ERR_ALLOC_FAILED;
   }

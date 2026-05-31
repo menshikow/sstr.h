@@ -158,7 +158,7 @@ ErrorCode string_append(String *s, const char *slice);
  * allocation policy
  * ========================================================================== */
 
-ErrorCode string_reserve(String *s, size_t add_cap);
+ErrorCode string_reserve(String *s, size_t count);
 
 /* ============================================================================
  * COPYING
@@ -169,5 +169,18 @@ ErrorCode string_reserve(String *s, size_t add_cap);
  * ========================================================================== */
 
 ErrorCode string_clone(String *s_dest, String const *s_src);
+
+/* ============================================================================
+ * SHRINKING
+ *
+ * check if cap > len + 1
+ * allocate a smaller memory block
+ * copy the data
+ * free the memory
+ * update the the pointer and the capacity
+ * ==========================================================================
+ */
+
+ErrorCode string_shrink(String *s);
 
 #endif /* STRING_H */

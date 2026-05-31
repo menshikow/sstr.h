@@ -4,8 +4,8 @@
 
 - [x] improve the header file
 - [x] implement strcpy and memcpy
-- [ ] implement string_reserve
-- [ ] implement string_clone 
+- [x] implement string_reserve
+- [x] implement string_clone 
 - [ ] implement string_shrink
 - [ ] refactor
 - [ ] write tests
