@@ -44,6 +44,7 @@ vgcore.*
 *~
 
 Thumbs.db
+sds/
 
 scan-build-*
 
