@@ -1,7 +1,5 @@
 # tiny-str
 
-> tiny c library for using strings 
+> tiny c string libary
 
-- this project is mostly about me learning systems programming and c 
-
-// fixted the todo with agents, else no AI is used to write the CODE
+- created for educational purposes

@@ -4,6 +4,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// maybe later implement:
+// size_t strnlen_s( const char* str, size_t strsz );
+
+size_t my_strlen(const char *string_start) {
+  if (string_start == NULL) {
+    return ERR_NULL_ARGUMENT;
+  }
+
+  const char *string_end = string_start;
+  while (*string_end != '\0') {
+    ++string_end;
+  }
+
+  return string_end - string_start;
+}
+
+void *my_memcpy(void *restrict dest, const void *restrict src, size_t count) {}
+
 ErrorCode string_init(String *s_out, const char *s_in) {
   if (s_out == NULL) {
     return ERR_NULL_PTR;
@@ -20,9 +38,7 @@ ErrorCode string_init(String *s_out, const char *s_in) {
   s_out->len = 0;
   s_out->cap = DEFAULT_CAPACITY;
 
-  for (size_t i = 0; s_in[i] != '\0'; i++) {
-    s_out->len += 1;
-  }
+  s_out->len = my_strlen(s_in);
 
   if (s_out->len >= s_out->cap) {
     s_out->cap = s_out->len * 2;
@@ -64,11 +80,7 @@ ErrorCode string_append(String *s, const char *slice) {
                                               : ERR_STRING_INIT_FAILED;
   }
 
-  size_t slice_len = 0; // size_t slice_len = my_strlen(slice);
-
-  for (size_t i = 0; slice[i] != '\0'; i++) {
-    slice_len++;
-  }
+  size_t slice_len = my_strlen(slice);
 
   size_t new_len = s->len + slice_len;
 
