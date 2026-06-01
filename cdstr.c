@@ -1,4 +1,4 @@
-#include "../include/string.h"
+#include "cdstr.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,7 +6,7 @@
 
 // later impelemnt a strlen in a slice
 
-size_t my_strlen(const char *string_start) {
+size_t cdstr_strlen(const char *string_start) {
   if (string_start == NULL) {
     return ERR_NULL_ARGUMENT;
   }
@@ -19,8 +19,8 @@ size_t my_strlen(const char *string_start) {
   return string_end - string_start;
 }
 
-static size_t copy_bytes(char *restrict dest, const void *restrict src,
-                         size_t count) {
+static size_t cdstr_memcpy(char *restrict dest, const void *restrict src,
+                           size_t count) {
 
   size_t bytes_to_copy = count;
   size_t copied = bytes_to_copy;
@@ -34,40 +34,33 @@ static size_t copy_bytes(char *restrict dest, const void *restrict src,
   return copied;
 }
 
-ErrorCode string_init(String *s_out, const char *s_in) {
+Err cdstr_init(String *s_out, const char *s_in) {
   if (s_out == NULL) {
     return ERR_NULL_ARGUMENT;
   }
 
   if (s_in == NULL) {
-    s_out->ptr = NULL;
-    s_out->len = 0;
-    s_out->cap = 0;
-
-    return ERR_NULL_ARGUMENT;
+    s_in = "";
   }
 
-  s_out->ptr = NULL;
-  s_out->len = 0;
-  s_out->cap = DEFAULT_CAPACITY;
+  size_t len = cdstr_strlen(s_in);
+  size_t cap = len + 1 > DEFAULT_CAPACITY ? len + 1 : DEFAULT_CAPACITY;
 
-  s_out->len = my_strlen(s_in);
-
-  if (s_out->len >= s_out->cap) {
-    s_out->cap = s_out->len * 2;
-  }
-
-  s_out->ptr = (char *)malloc(s_out->cap);
-  if (s_out->ptr == NULL) {
+  char *buf = (char *)malloc(cap);
+  if (buf == NULL) {
     return ERR_ALLOC_FAILED;
   }
 
-  copy_bytes(s_out->ptr, s_in, s_out->len + 1);
+  cdstr_memcpy(s_out->ptr, s_in, len + 1);
+
+  s_out->ptr = buf;
+  s_out->len = len;
+  s_out->cap = cap;
 
   return SUCCESS;
 }
 
-ErrorCode string_destroy(String *s) {
+Err cdstr_destroy(String *s) {
   if (s == NULL) {
     return ERR_NULL_ARGUMENT;
   }
@@ -80,17 +73,16 @@ ErrorCode string_destroy(String *s) {
   return SUCCESS;
 }
 
-ErrorCode string_append(String *s, const char *slice) {
+Err cdstr_append(String *s, const char *slice) {
   if (s == NULL || slice == NULL) {
     return ERR_NULL_ARGUMENT;
   }
 
   if (s->ptr == NULL) {
-    return (string_init(s, slice) == SUCCESS) ? SUCCESS
-                                              : ERR_STRING_INIT_FAILED;
+    return (cdstr_init(s, slice) == SUCCESS) ? SUCCESS : ERR_STRING_INIT_FAILED;
   }
 
-  size_t slice_len = my_strlen(slice);
+  size_t slice_len = cdstr_strlen(slice);
 
   size_t new_len = s->len + slice_len;
 
@@ -106,7 +98,7 @@ ErrorCode string_append(String *s, const char *slice) {
     s->cap = tmp_cap;
   }
 
-  copy_bytes(s->ptr + s->len, slice, slice_len + 1);
+  cdstr_memcpy(s->ptr + s->len, slice, slice_len + 1);
 
   s->len = new_len;
 
@@ -116,7 +108,7 @@ ErrorCode string_append(String *s, const char *slice) {
 // think about 1. Self-clone, 2. What if src is destroyed?, 3. What if dest is
 // in the destroyed/empty state?
 
-ErrorCode string_clone(String *dest, String const *src) {
+Err cdstr_copy(String *dest, String const *src) {
   if (src == NULL || dest == NULL) {
     return ERR_NULL_ARGUMENT;
   }
@@ -131,19 +123,19 @@ ErrorCode string_clone(String *dest, String const *src) {
 
     dest->ptr = tmp_ptr;
     dest->cap = tmp_cap;
-    copy_bytes(dest->ptr, src->ptr, src->len + 1);
+    cdstr_memcpy(dest->ptr, src->ptr, src->len + 1);
     dest->len = src->len;
 
     return SUCCESS;
   }
 
-  copy_bytes(dest->ptr, src->ptr, src->len + 1);
+  cdstr_memcpy(dest->ptr, src->ptr, src->len + 1);
   dest->len = src->len;
 
   return SUCCESS;
 }
 
-ErrorCode string_reserve(String *s, size_t count) {
+Err cdstr_reserve(String *s, size_t count) {
   if (s == NULL || s->ptr == NULL) {
     return ERR_NULL_ARGUMENT;
   }
@@ -165,7 +157,7 @@ ErrorCode string_reserve(String *s, size_t count) {
   return SUCCESS;
 }
 
-ErrorCode string_shrink(String *s) {
+Err cdstr_shrink(String *s) {
   if (s == NULL) {
     return ERR_NULL_ARGUMENT;
   }

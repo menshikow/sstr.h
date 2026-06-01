@@ -48,9 +48,5 @@ sds/
 
 scan-build-*
 
-blog-learning-summery.md
-contract.md
 *.rpm
-blog-learning-summary.md
-notes/
-thinkabout.txt
+cdstrtest.h
