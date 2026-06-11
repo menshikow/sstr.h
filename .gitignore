@@ -50,7 +50,7 @@ sds/
 scan-build-*
 
 *.rpm
-TODO
+TODO.md
 
 lib.md
 tests.md
