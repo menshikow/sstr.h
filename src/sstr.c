@@ -80,7 +80,7 @@ Err sstr_clear(String *s) {
   return SUCCESS;
 }
 
-Err str_append(String *s, const char *slice) {
+Err sstr_append(String *s, const char *slice) {
   if (s == NULL || slice == NULL) {
     return ERR_NULL_ARGUMENT;
   }
@@ -409,7 +409,7 @@ char *sstr_cstr(const String *s) {
     return NULL;
   }
 
-  memcpy(buf, s->ptr, s->len);
+  sstr_memcpy(buf, s->ptr, s->len);
   buf[s->len] = '\0';
 
   return buf;
